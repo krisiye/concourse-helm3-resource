@@ -20,7 +20,7 @@ setup_kubernetes() {
   AWS_SECRET_ACCESS_KEY=$(jq -r '.params.aws_secret_access_key // ""' < $payload)
   export AWS_SECRET_ACCESS_KEY
 
-  tracing_enabled=$(jq -r '.source.tracing_enabled // "false"' < $1)
+  tracing_enabled=$(jq -r '.source.tracing_enabled // "false"' < $payload)
   if [ "$tracing_enabled" = "true" ]; then
     # check creds
     aws configure list
