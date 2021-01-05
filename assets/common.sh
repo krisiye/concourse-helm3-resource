@@ -13,9 +13,29 @@ setup_kubernetes() {
 
   mkdir -p /root/.kube
   kubeconfig_path=$(jq -r '.params.kubeconfig_path // ""' < $payload)
+
+  # set up IAM credentials for AWS IAM Authenticator
+  AWS_ACCESS_KEY_ID=$(jq -r '.params.aws_access_key_id // ""' < $payload)
+  export AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY=$(jq -r '.params.aws_secret_access_key // ""' < $payload)
+  export AWS_SECRET_ACCESS_KEY
+  AWS_SESSION_TOKEN="$(jq -r '.params.aws_session_token // ""' < $payload)"
+  export AWS_SESSION_TOKEN
+
+  # check creds
+  aws configure list
+  aws sts get-caller-identity
+
   absolute_kubeconfig_path="${source}/${kubeconfig_path}"
   if [ -f "$absolute_kubeconfig_path" ]; then
     cp "$absolute_kubeconfig_path" "/root/.kube/config"
+    export KUBECONFIG=/root/.kube/config
+
+    echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+    echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
+    echo "AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN"
+    echo "KUBECONFIG: $KUBECONFIG"
+
   else
     # Setup kubectl
     cluster_url=$(jq -r '.source.cluster_url // ""' < $payload)
