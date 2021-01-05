@@ -19,8 +19,6 @@ setup_kubernetes() {
   export AWS_ACCESS_KEY_ID
   AWS_SECRET_ACCESS_KEY=$(jq -r '.params.aws_secret_access_key // ""' < $payload)
   export AWS_SECRET_ACCESS_KEY
-  AWS_SESSION_TOKEN="$(jq -r '.params.aws_session_token // ""' < $payload)"
-  export AWS_SESSION_TOKEN
 
   # check creds
   aws configure list
@@ -33,7 +31,6 @@ setup_kubernetes() {
 
     echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
     echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
-    echo "AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN"
     echo "KUBECONFIG: $KUBECONFIG"
 
   else
