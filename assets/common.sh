@@ -20,19 +20,17 @@ setup_kubernetes() {
   AWS_SECRET_ACCESS_KEY=$(jq -r '.params.aws_secret_access_key // ""' < $payload)
   export AWS_SECRET_ACCESS_KEY
 
-  # check creds
-  aws configure list
-  aws sts get-caller-identity
+  tracing_enabled=$(jq -r '.source.tracing_enabled // "false"' < $1)
+  if [ "$tracing_enabled" = "true" ]; then
+    # check creds
+    aws configure list
+    aws sts get-caller-identity
+  fi
 
   absolute_kubeconfig_path="${source}/${kubeconfig_path}"
   if [ -f "$absolute_kubeconfig_path" ]; then
     cp "$absolute_kubeconfig_path" "/root/.kube/config"
     export KUBECONFIG=/root/.kube/config
-
-    echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-    echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
-    echo "KUBECONFIG: $KUBECONFIG"
-
   else
     # Setup kubectl
     cluster_url=$(jq -r '.source.cluster_url // ""' < $payload)
